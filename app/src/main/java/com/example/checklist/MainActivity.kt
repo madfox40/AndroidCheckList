@@ -9,9 +9,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
@@ -67,7 +65,8 @@ class MainActivity : ComponentActivity() {
         Row(
             modifier = Modifier
                 .background(MaterialTheme.colors.background)
-                .padding(8.dp),
+                .padding(8.dp)
+                .fillMaxWidth(),
         ) {
             MyImage()
             MyTexts(checkItem)
@@ -124,13 +123,40 @@ class MainActivity : ComponentActivity() {
         )
     }
 
+    @Composable
+    fun MyBottomAppBar () {
+
+    }
+
+    @Composable
+    fun MytopAppBar(){
+
+    }
 
     @Composable
     fun MyComposition(checkItems: List<MyItems>) {
-        LazyColumn()
-        {
-            items(checkItems) { checkItem ->
-                MyComponent(checkItem = checkItem)
+        Scaffold(
+            floatingActionButton = {
+                FloatingActionButton(onClick = { /*TODO*/ }) {
+
+                }
+            },
+            isFloatingActionButtonDocked = true,
+            bottomBar = {
+                BottomAppBar {
+
+                }
+            },
+            topBar = {
+                TopAppBar { /* Top app bar content */ }
+            }
+        ) {
+            // Screen content
+            LazyColumn()
+            {
+                items(checkItems) { checkItem ->
+                    MyComponent(checkItem = checkItem)
+                }
             }
         }
     }
@@ -155,7 +181,24 @@ class MainActivity : ComponentActivity() {
             ),
             MyItems(name = "Caracola", body = "Esto es una prueg"),
             MyItems(name = "Pepito", body = "A ver a ver"),
-            MyItems(name = "Adrianita", body = "A ver a ver")
+            MyItems(name = "Adrianita", body = "A ver a ver"),
+            MyItems(
+                name = "Hola",
+                body = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum volutpat leo vel nisi luctus, a fringilla nisl pulvinar. Praesent varius, nibh sed placerat sodales, ante sem sodales ipsum, at dignissim arcu urna non est. Aenean in rutrum diam. Sed nec mollis felis. In in tempus orci. Ut non aliquet nisl."
+            ),
+            MyItems(
+                name = "Muy Buenas",
+                body = "Praesent quis sagittis nisi, at euismod metus. Nunc faucibus lectus erat, quis porta lectus tincidunt eu. Nullam luctus risus eget viverra ultricies. Maecenas congue, eros ac bibendum placerat, nibh diam semper elit, at sagittis tortor justo id velit. Integer vel est vel felis varius placerat. Etiam sollicitudin arcu diam, non auctor lectus ullamcorper sed."
+            ),
+            MyItems(name = "Hola", body = "Esto es una prueba jajaj saludos"),
+            MyItems(
+                name = "Que tal",
+                body = "Nullam sed posuere dolor, at vehicula felis. Aliquam erat volutpat. Duis semper, tellus sed cursus imperdiet, mi mi suscipit eros, a pulvinar leo purus at tortor. Vivamus ac imperdiet leo. Aliquam sollicitudin luctus tellus, vitae tempus nibh elementum et. Integer sit amet mollis purus. In hac habitasse platea dictumst."
+            ),
+            MyItems(name = "Caracola", body = "Esto es una prueg"),
+            MyItems(name = "Pepito", body = "A ver a ver"),
+            MyItems(name = "Adrianita", body = "A ver a ver"),
+
         )
 
         CheckListTheme() {
