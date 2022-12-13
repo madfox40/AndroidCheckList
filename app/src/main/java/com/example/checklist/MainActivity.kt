@@ -141,12 +141,7 @@ class MainActivity : ComponentActivity() {
 
                 }
             },
-            isFloatingActionButtonDocked = true,
-            bottomBar = {
-                BottomAppBar {
-
-                }
-            },
+            isFloatingActionButtonDocked = false,
             topBar = {
                 TopAppBar { /* Top app bar content */ }
             }
