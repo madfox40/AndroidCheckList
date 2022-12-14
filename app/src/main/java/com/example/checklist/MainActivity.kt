@@ -23,6 +23,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.checklist.Navigation.AppNavigation
+import com.example.checklist.Screens.FirstScreen
 import com.example.checklist.ui.theme.CheckListTheme
 import java.sql.DatabaseMetaData
 import java.time.format.TextStyle
@@ -50,9 +52,10 @@ class MainActivity : ComponentActivity() {
                 MyItems(name = "Pepito", body = "A ver a ver"),
                 MyItems(name = "Adrianita", body = "A ver a ver")
             )
+            AppNavigation()
+            CheckListTheme {
 
-            CheckListTheme() {
-                MyComposition(checkItems = data)
+                //MyComposition(checkItems = data)
             }
         }
     }
@@ -199,5 +202,11 @@ class MainActivity : ComponentActivity() {
         CheckListTheme() {
             MyComposition(checkItems = data)
         }
+    }
+
+    @Preview(showBackground = true)
+    @Composable
+    fun DefaultPreview(){
+        AppNavigation()
     }
 }
