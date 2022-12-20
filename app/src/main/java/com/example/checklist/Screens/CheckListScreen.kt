@@ -18,6 +18,8 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.snapshots.SnapshotStateList
@@ -26,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.checklist.Data.CheckList
 import com.example.checklist.Data.CheckListItem
 import com.example.checklist.ui.theme.CheckListTheme
@@ -71,7 +74,7 @@ fun MyCheckListItem(
 
         TextField(
             colors = TextFieldDefaults.textFieldColors(
-                backgroundColor = Color.White, textColor = MaterialTheme.colors.primary,
+                backgroundColor = Color.Transparent, textColor = MaterialTheme.colors.primary,
                 disabledTextColor = Color.Transparent,
                 focusedIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent,
@@ -99,6 +102,28 @@ fun MyCheckListItem(
     }
 }
 
+
+@Composable
+fun CheckedItemsComponent() {
+    var expanded by remember {
+        mutableStateOf(false)
+    }
+    Column(modifier = Modifier.padding(start = 20.dp)) {
+        Row() {
+            Icon(
+                imageVector = if (expanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
+                contentDescription = "See checked items or not",
+                tint = MaterialTheme.colors.secondary
+            )
+            Text( modifier = Modifier.padding(start = 4.dp),
+                text = "CheckedItems", color = MaterialTheme.colors.secondary,
+                fontSize = 20.sp
+            )
+        }
+    }
+
+}
+
 @Composable
 fun MyCheckList(
     checkItems: SnapshotStateList<CheckListItem> = remember { data.notCheckedItems },
@@ -113,7 +138,24 @@ fun MyCheckList(
         },
         isFloatingActionButtonDocked = false,*/
         topBar = {
-            TopAppBar { /* Top app bar content */ }
+            TopAppBar {
+                var text by remember {
+                    mutableStateOf("CheckList")
+                }
+                TextField(
+                    colors = TextFieldDefaults.textFieldColors(
+                        backgroundColor = Color.Transparent,
+                        textColor = MaterialTheme.colors.secondary,
+                        disabledTextColor = Color.Transparent,
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
+                        disabledIndicatorColor = Color.Transparent
+                    ),
+                    value = text,
+                    textStyle = MaterialTheme.typography.subtitle1,
+                    onValueChange = { text = it }
+                )
+            }
         }
     ) {
         // Screen content
@@ -159,6 +201,25 @@ fun MyCheckList(
                     }
 
                 )
+                item {
+                    Button(
+                        modifier = Modifier.padding(8.dp),
+                        onClick = { checkItems.add(CheckListItem(name = "", deleted = false)) }) {
+                        Row() {
+                            Icon(
+                                Icons.Filled.Add,
+                                contentDescription = "Close",
+                                tint = MaterialTheme.colors.primaryVariant
+                            )
+                            Spacer(modifier = Modifier.padding(4.dp))
+
+                            Text(text = "Add New Item")
+                        }
+                    }
+
+                    CheckedItemsComponent()
+
+                }
                 items(
                     items = checkedItems,
                     itemContent = { checkedItem ->
@@ -189,22 +250,7 @@ fun MyCheckList(
                         }
                     }
                 )
-                item() {
-                    Button(
-                        modifier = Modifier.padding(8.dp),
-                        onClick = { checkItems.add(CheckListItem(name = "", deleted = false)) }) {
-                        Row() {
-                            Icon(
-                                Icons.Filled.Add,
-                                contentDescription = "Close",
-                                tint = MaterialTheme.colors.primaryVariant
-                            )
-                            Spacer(modifier = Modifier.padding(4.dp))
 
-                            Text(text = "Add New Item")
-                        }
-                    }
-                }
 
                 /* items(checkItems) { checkItem ->
                      Text("prueba")
