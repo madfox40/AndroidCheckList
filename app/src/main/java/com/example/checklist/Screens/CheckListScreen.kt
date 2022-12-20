@@ -15,6 +15,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -29,9 +30,9 @@ import com.example.checklist.Data.NotCheckedArguments
 import com.example.checklist.MainActivity
 import com.example.checklist.ui.theme.CheckListTheme
 
-private fun getCheckdArguments() = List(0) { i -> CheckListItem("Task # $i", false) }
+private fun getCheckdArguments() = List(1) { i -> CheckListItem("", false) }
 var data = getCheckdArguments().toMutableStateList()
-var data2 = getCheckdArguments()
+
 
 @Composable
 fun MyCheckListItem(label: String, onClose: () -> Unit) {
@@ -93,22 +94,18 @@ fun MyCheckListItem(
     }
 }
 
-fun generateRandom():String{
-    return (0..10000).random().toString()
-}
-
 @Composable
 fun MyCheckList(
     checkItems: SnapshotStateList<CheckListItem> = remember { data }
 ) {
     val deletedItems = remember { mutableStateListOf<Int>() }
     Scaffold(
-        floatingActionButton = {
+        /*floatingActionButton = {
             FloatingActionButton(onClick = { data.add(CheckListItem("", false)) }) {
 
             }
         },
-        isFloatingActionButtonDocked = false,
+        isFloatingActionButtonDocked = false,*/
         topBar = {
             TopAppBar { /* Top app bar content */ }
         }
@@ -143,6 +140,17 @@ fun MyCheckList(
                         }
                     }
                 )
+                item() {
+                    Button(modifier = Modifier.padding(8.dp),onClick = { checkItems.add(CheckListItem(name = "", deleted = false)) }) {
+                        Row() {
+                            Icon(Icons.Filled.Add, contentDescription = "Close", tint = MaterialTheme.colors.primaryVariant)
+                            Spacer(modifier = Modifier.padding(4.dp))
+
+                            Text(text = "Add New Item")
+                        }
+                    }
+                }
+
                /* items(checkItems) { checkItem ->
                     Text("prueba")
                     MyCheckListItem(
@@ -150,14 +158,6 @@ fun MyCheckList(
                         onClose = { checkItems.remove(checkItem) })
                 }*/
             }
-            /*Button(modifier = Modifier.padding(8.dp),onClick = { checkItems.add(MyItems(name = "hola", body = "adios")) }) {
-                Row() {
-                    Icon(Icons.Filled.Add, contentDescription = "Close", tint = MaterialTheme.colors.primaryVariant)
-                    Spacer(modifier = Modifier.padding(4.dp))
-
-                    Text(text = "Add New Item")
-                }
-            }*/
         }
     }
 }
