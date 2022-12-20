@@ -16,16 +16,14 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.ExpandLess
-import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -33,6 +31,7 @@ import com.example.checklist.Data.CheckList
 import com.example.checklist.Data.CheckListItem
 import com.example.checklist.ui.theme.CheckListTheme
 import com.example.checklist.Data.data
+import kotlin.math.exp
 
 
 @Composable
@@ -105,22 +104,7 @@ fun MyCheckListItem(
 
 @Composable
 fun CheckedItemsComponent() {
-    var expanded by remember {
-        mutableStateOf(false)
-    }
-    Column(modifier = Modifier.padding(start = 20.dp)) {
-        Row() {
-            Icon(
-                imageVector = if (expanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
-                contentDescription = "See checked items or not",
-                tint = MaterialTheme.colors.secondary
-            )
-            Text( modifier = Modifier.padding(start = 4.dp),
-                text = "CheckedItems", color = MaterialTheme.colors.secondary,
-                fontSize = 20.sp
-            )
-        }
-    }
+
 
 }
 
@@ -155,14 +139,26 @@ fun MyCheckList(
                     textStyle = MaterialTheme.typography.subtitle1,
                     onValueChange = { text = it }
                 )
+                IconButton(onClick = { data.removeDeleted() }) {
+                    Icon(imageVector = Icons.Filled.Refresh, contentDescription = "Click to refresh", modifier = Modifier.weight(1f))
+                }
             }
         }
     ) {
         // Screen content
         Column() {
+            var expanded by remember {
+                mutableStateOf(true)
+            }
             LazyColumn(
                 Modifier
                     .padding(bottom = 0.dp, start = 0.dp, end = 0.dp)
+                    .animateContentSize(
+                        animationSpec = spring(
+                            dampingRatio = Spring.DampingRatioMediumBouncy,
+                            stiffness = Spring.StiffnessLow
+                        )
+                    )
                 /*.animateContentSize(
                     animationSpec = spring(
                         dampingRatio = Spring.DampingRatioHighBouncy,
@@ -217,40 +213,67 @@ fun MyCheckList(
                         }
                     }
 
-                    CheckedItemsComponent()
+                    Column(modifier = Modifier.padding(start = 10.dp)) {
+
+                        IconButton(
+                            modifier = Modifier.padding(0.dp),
+                            onClick = { expanded = !expanded }) {
+                            Row(
+                                modifier = Modifier.padding(0.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.Center
+                            ) {
+                                Icon(
+                                    modifier = Modifier.padding(0.dp),
+                                    imageVector = if (expanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
+                                    contentDescription = "See checked items or not",
+                                    tint = MaterialTheme.colors.secondary,
+                                )
+                                Text(
+                                    modifier = Modifier.padding(start = 2.dp),
+                                    text = "CheckedItems",
+                                    color = MaterialTheme.colors.secondary,
+                                    fontSize = 20.sp
+                                )
+                            }
+                        }
+
+
+                    }
 
                 }
-                items(
-                    items = checkedItems,
-                    itemContent = { checkedItem ->
-                        AnimatedVisibility(
-                            visible = !(System.identityHashCode(checkedItem) in deletedItems),
-                            enter = expandVertically(),
-                            exit = shrinkVertically(animationSpec = tween(durationMillis = 1000))
-                        ) {
-                            var checkedState by rememberSaveable {
-                                mutableStateOf(true)
+                if (expanded) {
+                    items(
+                        items = checkedItems,
+                        itemContent = { checkedItem ->
+                            AnimatedVisibility(
+                                visible = !(System.identityHashCode(checkedItem) in deletedItems),
+                                enter = expandVertically(),
+                                exit = shrinkVertically(animationSpec = tween(durationMillis = 1000))
+                            ) {
+                                var checkedState by rememberSaveable {
+                                    mutableStateOf(true)
+                                }
+                                var name by remember {
+                                    mutableStateOf(checkedItem.name)
+                                }
+                                MyCheckListItem(
+                                    checListkItem = checkedItem,
+                                    onCheckedChange = { newValue ->
+                                        data.removeChecked(checkedItem)
+                                        data.addNotChecked(checkedItem)
+                                        data.showLists()
+                                        checkedState = newValue
+                                    },
+                                    checkedState = checkedState,
+                                    onClose = {
+                                        deletedItems.add(System.identityHashCode(checkedItem))
+                                        checkedItem.deleted = true
+                                    })
                             }
-                            var name by remember {
-                                mutableStateOf(checkedItem.name)
-                            }
-                            MyCheckListItem(
-                                checListkItem = checkedItem,
-                                onCheckedChange = { newValue ->
-                                    data.removeChecked(checkedItem)
-                                    data.addNotChecked(checkedItem)
-                                    data.showLists()
-                                    checkedState = newValue
-                                },
-                                checkedState = checkedState,
-                                onClose = {
-                                    deletedItems.add(System.identityHashCode(checkedItem))
-                                    checkedItem.deleted = true
-                                })
                         }
-                    }
-                )
-
+                    )
+                }
 
                 /* items(checkItems) { checkItem ->
                      Text("prueba")
