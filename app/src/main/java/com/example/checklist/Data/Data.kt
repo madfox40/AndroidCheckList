@@ -8,7 +8,7 @@ import com.example.checklist.MainActivity
 data class CheckList (var chekedArguments: CheckedArguments, var notCheckedArguments: NotCheckedArguments){
 }
 
-data class CheckListItem (var name: String){
+data class CheckListItem (var name: String, var deleted: Boolean){
 
 }
 

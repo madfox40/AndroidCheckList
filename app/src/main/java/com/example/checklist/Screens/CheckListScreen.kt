@@ -1,13 +1,18 @@
 package com.example.checklist.Screens
 
 import android.content.res.Configuration
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -24,7 +29,7 @@ import com.example.checklist.Data.NotCheckedArguments
 import com.example.checklist.MainActivity
 import com.example.checklist.ui.theme.CheckListTheme
 
-private fun getCheckdArguments() = List(30) { i -> CheckListItem("Task # $i") }
+private fun getCheckdArguments() = List(0) { i -> CheckListItem("Task # $i", false) }
 var data = getCheckdArguments().toMutableStateList()
 var data2 = getCheckdArguments()
 
@@ -36,7 +41,7 @@ fun MyCheckListItem(label: String, onClose: () -> Unit) {
         label = label,
         checked = checkedState,
         onCheckedChange = { newValue -> checkedState = newValue },
-        onClose = onClose
+        onClose = onClose,
     )
 }
 
@@ -50,7 +55,7 @@ fun MyCheckListItem(
     Row(
         modifier = Modifier
             .background(MaterialTheme.colors.background)
-            .padding(8.dp)
+            .padding(start = 8.dp, bottom = 0.dp, top = 0.dp)
             .fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -88,13 +93,18 @@ fun MyCheckListItem(
     }
 }
 
+fun generateRandom():String{
+    return (0..10000).random().toString()
+}
+
 @Composable
 fun MyCheckList(
     checkItems: SnapshotStateList<CheckListItem> = remember { data }
 ) {
+    val deletedItems = remember { mutableStateListOf<Int>() }
     Scaffold(
         floatingActionButton = {
-            FloatingActionButton(onClick = { data.add(CheckListItem("Hola")) }) {
+            FloatingActionButton(onClick = { data.add(CheckListItem("", false)) }) {
 
             }
         },
@@ -107,7 +117,7 @@ fun MyCheckList(
         Column() {
             LazyColumn(
                 Modifier
-                    .padding(bottom = 0.dp)
+                    .padding(bottom = 0.dp, start = 0.dp, end = 0.dp)
                     .animateContentSize(
                         animationSpec = spring(
                             dampingRatio = Spring.DampingRatioHighBouncy,
@@ -116,12 +126,29 @@ fun MyCheckList(
                     )
             )
             {
-                items(checkItems) { checkItem ->
+                items(
+                    items = checkItems,
+                    itemContent = { checkItem ->
+                        AnimatedVisibility(
+                            visible = !(System.identityHashCode(checkItem) in deletedItems),
+                            enter = expandVertically(),
+                            exit = shrinkVertically(animationSpec = tween(durationMillis = 1000))
+                        ) {
+                            MyCheckListItem(
+                                label = checkItem.name,
+                                onClose = {
+                                    deletedItems.add(System.identityHashCode(checkItem))
+                                    checkItem.deleted = true
+                                })
+                        }
+                    }
+                )
+               /* items(checkItems) { checkItem ->
                     Text("prueba")
                     MyCheckListItem(
                         label = checkItem.name,
                         onClose = { checkItems.remove(checkItem) })
-                }
+                }*/
             }
             /*Button(modifier = Modifier.padding(8.dp),onClick = { checkItems.add(MyItems(name = "hola", body = "adios")) }) {
                 Row() {
