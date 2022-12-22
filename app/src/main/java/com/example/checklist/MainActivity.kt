@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import com.example.checklist.Navigation.AppNavigation
+import com.example.checklist.Screens.MyAuthScreen
 import com.example.checklist.Screens.MyCheckList
 import com.example.checklist.ui.theme.CheckListTheme
 
@@ -68,7 +69,8 @@ class MainActivity : AppCompatActivity() {
             //AppNavigation()
             CheckListTheme {
 
-                MyCheckList()
+                //MyCheckList()
+                MyAuthScreen()
             }
         }
         //Setup
