@@ -28,10 +28,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import com.example.checklist.Data.*
+import com.example.checklist.Navigation.AppScreens
 import com.example.checklist.ui.theme.CheckListTheme
 import com.google.firebase.firestore.FirebaseFirestore
 import io.grpc.Context
+import kotlinx.coroutines.delay
 import kotlin.math.exp
 
 
@@ -107,9 +110,8 @@ fun MyCheckListItem(
 
 
 @Composable
-fun CheckedItemsComponent() {
-
-
+fun CheckListScreen(navHostController: NavHostController) {
+    MyCheckList()
 }
 
 @Composable
@@ -119,6 +121,7 @@ fun MyCheckList(
 ) {
     val context = LocalContext.current
     val deletedItems = remember { mutableStateListOf<String>() }
+    updateCheckList("1", context)
     Scaffold(
         /*floatingActionButton = {
             FloatingActionButton(onClick = { data.add(CheckListItem("", false)) }) {

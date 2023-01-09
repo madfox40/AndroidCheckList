@@ -64,12 +64,12 @@ class MainActivity : AppCompatActivity() {
 
         super.onCreate(savedInstanceState)
         setContent {
-
+            //MyAuthScreen()
             //Auth()
             //AppNavigation()
             CheckListTheme {
-
-                MyCheckList()
+                AppNavigation()
+                //MyCheckList()
                 //MyAuthScreen()
             }
         }
