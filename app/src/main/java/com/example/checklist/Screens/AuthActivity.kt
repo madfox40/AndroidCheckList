@@ -1,31 +1,48 @@
 package com.example.checklist.Screens
 
 import android.content.res.Configuration
+import com.example.checklist.R
 import android.util.Log
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.checklist.Data.data
+import com.example.checklist.Data.saveCheckList
+import com.example.checklist.Data.updateCheckList
 import com.example.checklist.ui.theme.CheckListTheme
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
+val dbs = FirebaseFirestore.getInstance()
+
+fun createUsers(email: String, hola: String) {
+    dbs.collection("users").document().set() {
+        hashMapOf(
+            "CheckList" to hola,
+        )
+    }
+}
 
 @Composable
 fun MyAuthScreen() {
 
-    LazyColumn() {
+    LazyColumn(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
         item {
             var autenticated by rememberSaveable() {
-                mutableStateOf(false)
+                mutableStateOf(true)
             }
             var email by rememberSaveable() {
                 mutableStateOf("")
@@ -89,17 +106,38 @@ fun MyAuthScreen() {
                         Text("Login")
                     }
                 } else {
-                    Button(onClick = {
-                        FirebaseAuth.getInstance().signOut()
-                        email = ""
-                        password = ""
-                        autenticated = false
-                    }, modifier = Modifier.weight(1f)) {
-                        Text(text = "Loggout")
+                    Column() {
+                        Button(onClick = {
+                            FirebaseAuth.getInstance().signOut()
+                            email = ""
+                            password = ""
+                            autenticated = false
+                        }, modifier = Modifier.weight(1f)) {
+                            Text(text = "Loggout")
+                        }
+                        MyGoogleButtom()
                     }
+
                 }
 
             }
+
+        }
+
+    }
+}
+
+@Composable
+fun MyGoogleButtom() {
+    Button(onClick = { saveCheckList("1", data) }) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Image(
+                painter = painterResource(id = R.drawable.googleicon),
+                contentDescription = "google icon",
+                modifier = Modifier.size(40.dp)
+            )
+            Spacer(modifier = Modifier.padding(5.dp))
+            Text("Google Autentication")
         }
 
     }

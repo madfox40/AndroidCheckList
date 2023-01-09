@@ -24,14 +24,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.modifier.modifierLocalConsumer
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.checklist.Data.CheckList
-import com.example.checklist.Data.CheckListItem
+import com.example.checklist.Data.*
 import com.example.checklist.ui.theme.CheckListTheme
-import com.example.checklist.Data.data
+import com.google.firebase.firestore.FirebaseFirestore
+import io.grpc.Context
 import kotlin.math.exp
+
+
 
 
 @Composable
@@ -79,8 +82,9 @@ fun MyCheckListItem(
                 unfocusedIndicatorColor = Color.Transparent,
                 disabledIndicatorColor = Color.Transparent
             ),
-            value = checListkItem.name, onValueChange = {
-                data.editNameComposable(checListkItem, it)
+            value = checListkItem.name!!, onValueChange = {
+                Log.d("Hola", "Id cuando escribes "+ checListkItem.id)
+                data.editNameComposable(checListkItem.id, it)
             },
             textStyle = MaterialTheme.typography.subtitle1
         )
@@ -110,10 +114,11 @@ fun CheckedItemsComponent() {
 
 @Composable
 fun MyCheckList(
-    checkItems: SnapshotStateList<CheckListItem> = remember { data.notCheckedItems },
-    checkedItems: SnapshotStateList<CheckListItem> = remember { data.chekedItems },
+    checkItems: SnapshotStateList<CheckListItem> = remember { data.notCheckedItems!! },
+    checkedItems: SnapshotStateList<CheckListItem> = remember { data.chekedItems!! },
 ) {
-    val deletedItems = remember { mutableStateListOf<Int>() }
+    val context = LocalContext.current
+    val deletedItems = remember { mutableStateListOf<String>() }
     Scaffold(
         /*floatingActionButton = {
             FloatingActionButton(onClick = { data.add(CheckListItem("", false)) }) {
@@ -139,8 +144,16 @@ fun MyCheckList(
                     textStyle = MaterialTheme.typography.subtitle1,
                     onValueChange = { text = it }
                 )
-                IconButton(onClick = { data.removeDeleted() }) {
+                IconButton(onClick = {
+                    updateCheckList("1",context)
+                    deletedItems.clear()
+                }) {
+                    Log.d("hola","actualizando checklist")
                     Icon(imageVector = Icons.Filled.Refresh, contentDescription = "Click to refresh", modifier = Modifier.weight(1f))
+                }
+                IconButton(onClick = { saveCheckList("1",data, context) }) {
+                    Log.d("hola","guardando datos")
+                    Icon(imageVector = Icons.Filled.Save, contentDescription = "Click to save", modifier = Modifier.weight(1f))
                 }
             }
         }
@@ -171,7 +184,7 @@ fun MyCheckList(
                     items = checkItems,
                     itemContent = { checkItem ->
                         AnimatedVisibility(
-                            visible = !(System.identityHashCode(checkItem) in deletedItems),
+                            visible = !(checkItem.id in deletedItems),
                             enter = expandVertically(),
                             exit = shrinkVertically(animationSpec = tween(durationMillis = 1000))
                         ) {
@@ -189,7 +202,7 @@ fun MyCheckList(
                                 },
                                 checkedState = checkedState,
                                 onClose = {
-                                    deletedItems.add(System.identityHashCode(checkItem))
+                                    deletedItems.add(checkItem.id)
                                     checkItem.deleted = true
                                 },
                             )
@@ -200,7 +213,7 @@ fun MyCheckList(
                 item {
                     Button(
                         modifier = Modifier.padding(8.dp),
-                        onClick = { checkItems.add(CheckListItem(name = "", deleted = false)) }) {
+                        onClick = { data.addNewItem(CheckListItem(name = "", deleted = false)) }) {
                         Row() {
                             Icon(
                                 Icons.Filled.Add,
@@ -247,7 +260,7 @@ fun MyCheckList(
                         items = checkedItems,
                         itemContent = { checkedItem ->
                             AnimatedVisibility(
-                                visible = !(System.identityHashCode(checkedItem) in deletedItems),
+                                visible = !(checkedItem.id in deletedItems),
                                 enter = expandVertically(),
                                 exit = shrinkVertically(animationSpec = tween(durationMillis = 1000))
                             ) {
@@ -267,7 +280,7 @@ fun MyCheckList(
                                     },
                                     checkedState = checkedState,
                                     onClose = {
-                                        deletedItems.add(System.identityHashCode(checkedItem))
+                                        deletedItems.add(checkedItem.id)
                                         checkedItem.deleted = true
                                     })
                             }

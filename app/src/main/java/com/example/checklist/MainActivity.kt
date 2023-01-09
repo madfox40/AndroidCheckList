@@ -69,8 +69,8 @@ class MainActivity : AppCompatActivity() {
             //AppNavigation()
             CheckListTheme {
 
-                //MyCheckList()
-                MyAuthScreen()
+                MyCheckList()
+                //MyAuthScreen()
             }
         }
         //Setup
