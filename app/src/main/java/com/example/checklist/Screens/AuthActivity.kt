@@ -34,7 +34,7 @@ fun createUsers(email: String, hola: String) {
 }
 
 @Composable
-fun MyAuthScreen() {
+fun MyAuthScreens() {
 
     LazyColumn(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -148,6 +148,6 @@ fun MyGoogleButtom() {
 @Composable
 fun PreviewAuthScreen() {
     CheckListTheme {
-        MyAuthScreen()
+        MyAuthScreens()
     }
 }

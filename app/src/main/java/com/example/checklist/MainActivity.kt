@@ -3,6 +3,7 @@ package com.example.checklist
 import android.content.res.Configuration
 import android.os.Bundle
 import android.text.Editable
+import android.util.Log
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.biometric.BiometricManager
@@ -31,37 +32,20 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
-import com.example.checklist.Navigation.AppNavigation
-import com.example.checklist.Screens.MyAuthScreen
-import com.example.checklist.Screens.MyCheckList
+import androidx.navigation.NavHostController
+import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import com.example.checklist.Navigation.AppScreens
+import com.example.checklist.Screens.*
 import com.example.checklist.ui.theme.CheckListTheme
+import com.example.splashscreen.ui.theme.SplashScreen
 
 
 class MainActivity : AppCompatActivity() {
-    val data = mutableListOf<MyItems>(
-        MyItems(
-            name = "Hola",
-            body = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum volutpat leo vel nisi luctus, a fringilla nisl pulvinar. Praesent varius, nibh sed placerat sodales, ante sem sodales ipsum, at dignissim arcu urna non est. Aenean in rutrum diam. Sed nec mollis felis. In in tempus orci. Ut non aliquet nisl."
-        ),
-        MyItems(
-            name = "Muy Buenas",
-            body = "Praesent quis sagittis nisi, at euismod metus. Nunc faucibus lectus erat, quis porta lectus tincidunt eu. Nullam luctus risus eget viverra ultricies. Maecenas congue, eros ac bibendum placerat, nibh diam semper elit, at sagittis tortor justo id velit. Integer vel est vel felis varius placerat. Etiam sollicitudin arcu diam, non auctor lectus ullamcorper sed."
-        ),
-        MyItems(name = "Hola", body = "Esto es una prueba jajaj saludos"),
-        MyItems(
-            name = "Que tal",
-            body = "Nullam sed posuere dolor, at vehicula felis. Aliquam erat volutpat. Duis semper, tellus sed cursus imperdiet, mi mi suscipit eros, a pulvinar leo purus at tortor. Vivamus ac imperdiet leo. Aliquam sollicitudin luctus tellus, vitae tempus nibh elementum et. Integer sit amet mollis purus. In hac habitasse platea dictumst."
-        ),
-        MyItems(name = "Caracola", body = "Esto es una prueg"),
-        MyItems(name = "Pepito", body = "A ver a ver"),
-        MyItems(name = "Adrianita", body = "A ver a ver"),
-        MyItems(name = "Adrianita", body = "A ver a ver")
-    ).toMutableStateList()
-
-
     override fun onCreate(savedInstanceState: Bundle?) {
-
-
         super.onCreate(savedInstanceState)
         setContent {
             //MyAuthScreen()
@@ -69,25 +53,153 @@ class MainActivity : AppCompatActivity() {
             //AppNavigation()
             CheckListTheme {
                 AppNavigation()
+
+                //MyAuthScreen(navHostController = NavHostController(this))
                 //MyCheckList()
                 //MyAuthScreen()
             }
         }
         //Setup
-        //setupAuth()
+        setupAuth()
     }
 
+    @Composable
+    fun AppNavigation(){
+        val navController = rememberNavController()
+        NavHost(navController = navController, startDestination = AppScreens.MainScreen.route){
+            composable(route = AppScreens.MainScreen.route){
+                SplashScreen(navController)
+            }
+            composable(route = AppScreens.CheckListScreen.route){
+                CheckListScreen(navController)
+            }
+            composable(route = AppScreens.AuthScreen.route){
+                MyAuthScreen(navController)
+            }
+            composable(route = AppScreens.SecondScreen.route + "/{text}",
+                arguments = listOf(navArgument(name = "text"){
+                    type = NavType.StringType
+                })){
+                SecondScreen(navController, it.arguments?.getString("text"))
+            }
+        }
+    }
 
     data class MyItems(val name: String, val body: String)
 
+    var canAuth = false
+    private lateinit var promptInfo: BiometricPrompt.PromptInfo
+    private fun setupAuth() {
+        if (BiometricManager.from(this).canAuthenticate(
+                BiometricManager.Authenticators.BIOMETRIC_STRONG
+                        or BiometricManager.Authenticators.DEVICE_CREDENTIAL
+            ) == BiometricManager.BIOMETRIC_SUCCESS
+        ) {
+            Log.d("hola", "llegamos")
+            canAuth = true
+
+            promptInfo = BiometricPrompt.PromptInfo.Builder()
+                .setTitle("Autentication")
+                .setSubtitle("Autenticate")
+                .setAllowedAuthenticators(
+                    BiometricManager.Authenticators.BIOMETRIC_STRONG
+                            or BiometricManager.Authenticators.DEVICE_CREDENTIAL
+                )
+                .build()
+        } else {
+            Log.d("hola", "No llegamos")
+        }
+        Log.d("hola", "llegar " + canAuth.toString())
+    }
+
+    fun authenticate(
+        auth: (auth: Boolean) -> Unit,
+    ) {
+        if (canAuth) {
+            BiometricPrompt(this, ContextCompat.getMainExecutor(this),
+                object : BiometricPrompt.AuthenticationCallback() {
+                    override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
+                        super.onAuthenticationSucceeded(result)
+                        auth(true)
+                    }
+                }).authenticate(promptInfo)
+        } else {
+            Log.d("sion", canAuth.toString() + " Can Auten")
+            Log.d("sion", "No Hay Biometrico")
+            auth(true)
+        }
+    }
+
+    @Composable
+    fun MyAuthScreen(navHostController: NavHostController) {
+        var auth by remember {
+            mutableStateOf(false)
+        }
+        if (auth == false) {
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.checklistlogo),
+                    contentDescription = "CheckList logo"
+                )
+                Button(onClick = {
+                    authenticate {
+                        auth = it
+                    }
+                }) {
+                    Text(text = "Autenticate")
+                }
+            }
+        } else {
+            //Vamos a la pagina principal
+            //navHostController.popBackStack()
+            //navHostController.navigate(AppScreens.CheckListScreen.route)
+            Log.d("hola", "verificado")
+            CheckListScreen(navHostController)
+        }
+    }
 
 
+    @Composable
+    fun AuthCpy() {
+        var auth by remember {
+            mutableStateOf(false)
+        }
+        Column(
+            modifier = Modifier
+                .background(if (auth) Color.Green else Color.Red)
+                .fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text(
+                if (auth) "You need to authenticate" else "You are authenticated",
+                fontSize = 22.sp,
+                fontWeight = FontWeight.Bold
+            )
+            Spacer(modifier = Modifier.height(8.dp))
 
+            Button(onClick = {
+                if (auth) {
+                    auth = false
+                } else {
+                    authenticate {
+                        auth = it
+                    }
+                }
+            }) {
+                Text(if (auth) "Cerrar" else "Authenticate")
+            }
+        }
+    }
 
 
     @Preview(showBackground = true)
     @Composable
-    fun DefaultPreview(){
+    fun DefaultPreview() {
         AppNavigation()
     }
 }

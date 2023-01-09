@@ -36,8 +36,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import io.grpc.Context
 import kotlinx.coroutines.delay
 import kotlin.math.exp
-
-
+import com.example.checklist.MainActivity
 
 
 @Composable
@@ -86,7 +85,7 @@ fun MyCheckListItem(
                 disabledIndicatorColor = Color.Transparent
             ),
             value = checListkItem.name!!, onValueChange = {
-                Log.d("Hola", "Id cuando escribes "+ checListkItem.id)
+                Log.d("Hola", "Id cuando escribes " + checListkItem.id)
                 data.editNameComposable(checListkItem.id, it)
             },
             textStyle = MaterialTheme.typography.subtitle1
@@ -148,15 +147,25 @@ fun MyCheckList(
                     onValueChange = { text = it }
                 )
                 IconButton(onClick = {
-                    updateCheckList("1",context)
+                    updateCheckList("1", context)
+                    Log.d("hola", "actualizando checklist")
                     deletedItems.clear()
                 }) {
-                    Log.d("hola","actualizando checklist")
-                    Icon(imageVector = Icons.Filled.Refresh, contentDescription = "Click to refresh", modifier = Modifier.weight(1f))
+                    Icon(
+                        imageVector = Icons.Filled.Refresh,
+                        contentDescription = "Click to refresh",
+                        modifier = Modifier.weight(1f)
+                    )
                 }
-                IconButton(onClick = { saveCheckList("1",data, context) }) {
-                    Log.d("hola","guardando datos")
-                    Icon(imageVector = Icons.Filled.Save, contentDescription = "Click to save", modifier = Modifier.weight(1f))
+                IconButton(onClick = {
+                    saveCheckList("1", data, context)
+                    Log.d("hola", "guardando datos")
+                }) {
+                    Icon(
+                        imageVector = Icons.Filled.Save,
+                        contentDescription = "Click to save",
+                        modifier = Modifier.weight(1f)
+                    )
                 }
             }
         }
