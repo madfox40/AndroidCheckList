@@ -138,6 +138,26 @@ data class CheckList(
 
     }
 
+    fun searchItemInNotCheckedItems(id:String):Boolean {
+        var finded = false
+        for (i in notCheckedItems.orEmpty()) {
+            if (i.id == id){
+                return true
+            }
+        }
+        return false
+    }
+
+    fun searchItemInCheckedItems(id:String):Boolean {
+        var finded = false
+        for (i in chekedItems.orEmpty()) {
+            if (i.id == id){
+                return true
+            }
+        }
+        return false
+    }
+
     fun addNewItem(checkListItem: CheckListItem) {
         var randomId = generateRandomId()
         notCheckedItems?.add(checkListItem)
@@ -181,27 +201,29 @@ data class CheckList(
     }
 
     fun addChecked(checkListItem: CheckListItem) {
-        chekedItems?.add(checkListItem)
+        chekedItems!!.removeIf{it.id == checkListItem.id}
+        var newItem = CheckListItem(id = checkListItem.id, name = checkListItem.name, deleted = false )
+        chekedItems?.add(newItem)
     }
 
     fun removeChecked(checkListItem: CheckListItem) {
-        chekedItems?.removeIf { item ->
-            item.id == checkListItem.id
-
-        }
+        chekedItems!!.removeIf{it.id == checkListItem.id}
+        var newItem = CheckListItem(id = checkListItem.id, name = "deletedItem", deleted = true )
+        chekedItems?.add(newItem)
         //chekedItems.remove(checkListItem)
 
     }
 
     fun addNotChecked(checkListItem: CheckListItem) {
-        notCheckedItems?.add(checkListItem)
+        notCheckedItems!!.removeIf{it.id == checkListItem.id}
+        var newItem = CheckListItem(id = checkListItem.id, name = checkListItem.name, deleted = false )
+        notCheckedItems?.add(newItem)
     }
 
     fun removeNotChecked(checkListItem: CheckListItem) {
-        notCheckedItems?.removeIf { item ->
-            item.id == checkListItem.id
-
-        }
+        notCheckedItems!!.removeIf{it.id == checkListItem.id}
+        var newItem = CheckListItem(id = checkListItem.id, name = "deletedItem", deleted = true )
+        notCheckedItems?.add(newItem)
         //notCheckedItems.remove(checkListItem)
     }
 

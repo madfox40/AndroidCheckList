@@ -203,21 +203,24 @@ fun MyCheckList(
                             var checkedState by rememberSaveable {
                                 mutableStateOf(false)
                             }
-                            MyCheckListItem(
-                                checListkItem = checkItem,
-                                onCheckedChange = { newValue ->
-                                    //data.removeDeleted()
-                                    data.addChecked(checkItem)
-                                    data.removeNotChecked(checkItem)
-                                    data.showLists()
-                                    checkedState = newValue
-                                },
-                                checkedState = checkedState,
-                                onClose = {
-                                    deletedItems.add(checkItem.id)
-                                    checkItem.deleted = true
-                                },
-                            )
+                            if (checkItem.name != "deletedItem") {
+                                MyCheckListItem(
+                                    checListkItem = checkItem,
+                                    onCheckedChange = { newValue ->
+                                        //data.removeDeleted()
+                                        data.addChecked(checkItem)
+                                        data.removeNotChecked(checkItem)
+                                        data.showLists()
+                                        checkedState = false
+                                    },
+                                    checkedState = checkedState,
+                                    onClose = {
+                                        deletedItems.add(checkItem.id)
+                                        checkItem.deleted = true
+                                    },
+                                )
+                            }
+
                         }
                     }
 
@@ -282,19 +285,21 @@ fun MyCheckList(
                                 var name by remember {
                                     mutableStateOf(checkedItem.name)
                                 }
-                                MyCheckListItem(
-                                    checListkItem = checkedItem,
-                                    onCheckedChange = { newValue ->
-                                        data.removeChecked(checkedItem)
-                                        data.addNotChecked(checkedItem)
-                                        data.showLists()
-                                        checkedState = newValue
-                                    },
-                                    checkedState = checkedState,
-                                    onClose = {
-                                        deletedItems.add(checkedItem.id)
-                                        checkedItem.deleted = true
-                                    })
+                                if (checkedItem.name != "deletedItem") {
+                                    MyCheckListItem(
+                                        checListkItem = checkedItem,
+                                        onCheckedChange = { newValue ->
+                                            data.removeChecked(checkedItem)
+                                            data.addNotChecked(checkedItem)
+                                            data.showLists()
+                                            checkedState = true
+                                        },
+                                        checkedState = checkedState,
+                                        onClose = {
+                                            deletedItems.add(checkedItem.id)
+                                            checkedItem.deleted = true
+                                        })
+                                }
                             }
                         }
                     )
